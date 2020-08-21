@@ -14,7 +14,7 @@ const employeeQuestions = {
     type: "input",
     name: "name",
     message: "What is the employee's name?",
-    validate: (name) => name !== "" && name !== null
+    validate: (name) => name !== "" && name !== null && name !== undefined,
 }
 
 function getBaseQuestions(employeeName) {
@@ -23,21 +23,21 @@ function getBaseQuestions(employeeName) {
             type: "input",
             name: "id",
             message: `What is the ID for ${ employeeName }?`,
-            validate: (name) => name !== "" && name !== null
+            validate: (name) => name !== "" && name !== null && name !== undefined,
         },
         {
             type: "input", 
             name: "email",
             message: `What is the email for ${ employeeName }?`,
-            validate: (name) => name !== "" && name !== null
+            validate: (name) => name !== "" && name !== null && name !== undefined,
         },
         {
             type: "list",
             name: "role",
             message: `What is the role of ${ employeeName }?`,
-            choices = ["Manager", "Engineer", "Intern"],
+            choices: ['Manager', 'Engineer', 'Intern'],
             default: "Engineer",
-            validate: (name) => name !== "" && name !== null
+            validate: (name) => name !== "" && name !== null && name !== undefined,
         }
     ];
 }
@@ -46,31 +46,81 @@ function getSpecificQuestions(employeeName, employeeRole) {
     return [
         {
             type: "input",
-            name: "school",
+            name: "roleSpecific",
             message: `What school does ${ employeeName } attend?`,
-            validate: (name) => name !== "" && name !== null,
+            validate: (name) => name !== "" && name !== null && name !== undefined,
             when: () => employeeRole == "Intern"
         },
         {
             type: "input",
-            name: "github",
+            name: "roleSpecific",
             message: `What is ${ employeeName }'s GitHub?`,
-            validate: (name) => name !== "" && name !== null,
+            validate: (name) => name !== "" && name !== null && name !== undefined,
             when: () => employeeRole == "Engineer"
         },
         {
             type: "input",
-            name: "office number",
+            name: "roleSpecific",
             message: `What is the office number of Manage ${ employeeName }?`,
-            validate: (name) => name !== "" && name !== null,
+            validate: (name) => name !== "" && name !== null && name !== undefined,
             when: () => employeeRole == "Manager"
         }
     ]
 }
 
+const addAdditionalEmployee = {
+    type: "confirm",
+    name: "confirmAddEmployee",
+    message: "Do you want to add another employee?",
+    validate: (name) => name !== "" && name !== null && name !== undefined,
+}
 
+async function init() {
+    let addEmployee = true;
+    let employees = [];
+    
+    while (addEmployee) {
+        let name, id, email, role, roleSpecific, teamMember;
+        await inquirer.prompt(employeeQuestions) 
+            .then(response => {name = response.name})
+            .catch(error => console.log(error));
+        
+        await inquirer.prompt(getBaseQuestions(name))
+            .then(response => {
+                id = response.id;
+                email = response.email;
+                role = response.role;
+            })
+            .catch(error => console.log(response.error));
 
-console.log("hey");
+        await inquirer.prompt(getSpecificQuestions(name, role))
+            .then(response => {roleSpecific = response.roleSpecific})
+            .catch(error => console.log(error));
+        
+        switch (role) {
+            case "Manager":
+                teamMember = new Manager(name, id, email, roleSpecific);
+                break;
+            case "Engineer":
+                teamMember = new Engineer(name, id, email, roleSpecific);
+                break;
+            case "Intern":
+                teamMember = new Intern(name, id, email, roleSpecific);
+                break;
+            default:
+                teamMember = new Engineer(name, id, email, roleSpecific);
+                break;
+        }
+
+        employees.push(teamMember);
+        await inquirer.prompt(addAdditionalEmployee)
+            .then(response => {addEmployee = response.confirmAddEmployee})
+            .catch(error => console.log(error));
+    }
+}
+
+init();
+
 
 
 // Write code to use inquirer to gather information about the development team members,
