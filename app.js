@@ -10,6 +10,68 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
+const employeeQuestions = {
+    type: "input",
+    name: "name",
+    message: "What is the employee's name?",
+    validate: (name) => name !== "" && name !== null
+}
+
+function getBaseQuestions(employeeName) {
+    return [
+        {
+            type: "input",
+            name: "id",
+            message: `What is the ID for ${ employeeName }?`,
+            validate: (name) => name !== "" && name !== null
+        },
+        {
+            type: "input", 
+            name: "email",
+            message: `What is the email for ${ employeeName }?`,
+            validate: (name) => name !== "" && name !== null
+        },
+        {
+            type: "list",
+            name: "role",
+            message: `What is the role of ${ employeeName }?`,
+            choices = ["Manager", "Engineer", "Intern"],
+            default: "Engineer",
+            validate: (name) => name !== "" && name !== null
+        }
+    ];
+}
+
+function getSpecificQuestions(employeeName, employeeRole) {
+    return [
+        {
+            type: "input",
+            name: "school",
+            message: `What school does ${ employeeName } attend?`,
+            validate: (name) => name !== "" && name !== null,
+            when: () => employeeRole == "Intern"
+        },
+        {
+            type: "input",
+            name: "github",
+            message: `What is ${ employeeName }'s GitHub?`,
+            validate: (name) => name !== "" && name !== null,
+            when: () => employeeRole == "Engineer"
+        },
+        {
+            type: "input",
+            name: "office number",
+            message: `What is the office number of Manage ${ employeeName }?`,
+            validate: (name) => name !== "" && name !== null,
+            when: () => employeeRole == "Manager"
+        }
+    ]
+}
+
+
+
+console.log("hey");
+
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
