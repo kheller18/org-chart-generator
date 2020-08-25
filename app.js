@@ -114,9 +114,20 @@ async function init() {
 
         employees.push(teamMember);
         await inquirer.prompt(addAdditionalEmployee)
-            .then(response => {addEmployee = response.confirmAddEmployee})
+            .then(response => {
+                addEmployee = response.confirmAddEmployee;
+                console.log("\n");
+            })
+                
             .catch(error => console.log(error));
     }
+    console.log(employees);
+    await fs.writeFile(outputPath, render(employees), function(error) {
+        if (error) {
+            return console.log(error);
+        }
+        console.log(employees)
+    });
 }
 
 init();
